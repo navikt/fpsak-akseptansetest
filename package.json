@@ -1,0 +1,15 @@
+{
+  "name": "fpsak-akseptansetest",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/navikt/fpsak-akseptansetest.git",
+  "author": "Michael Johansen <michael.johansen@nav.no>",
+  "license": "MIT",
+  "scripts": {
+    "cypress:open": "cypress open --project .",
+    "docker-build": "docker build -t fpsak-at .  --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY",
+    "docker-start": "yarn docker-stop; yarn docker-build; docker run -d --env-file=.env --name fpsak-at --net=host fpsak-at",
+    "docker-stop": "docker stop fpsak-at; docker rm fpsak-at",
+    "test": "cypress run --spec cypress/integration/innlogging.spec.js"
+  }
+}
