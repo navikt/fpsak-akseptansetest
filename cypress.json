@@ -1,9 +1,9 @@
 {
-  "baseUrl": "http://localhost:9000",
+  "baseUrl": "https://app-q1.adeo.no",
   "viewportWidth": 1500,
   "viewportHeight": 700,
   "video": false,
+  "trashAssetsBeforeRuns": false,
   "env": {
-
   }
 }

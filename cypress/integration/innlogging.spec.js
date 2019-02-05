@@ -2,7 +2,7 @@ describe('tester innlogging mot baseurl', () => {
   before(() => {
     // logger inn
     Cypress.Cookies.debug(false);
-    cy.login('Z990654', Cypress.env('SAKSBEHANDLER_PASSWORD'));
+    cy.login(Cypress.env('USERNAME'), Cypress.env('PASSWORD'));
   });
 
   beforeEach(() => {

@@ -1,5 +1,5 @@
 const getToken = require('../getTokenAxios');
-const cyEnv = require('../../../../cypress.env');
+const cyEnv = require('../../../cypress.env');
 
 
 const config = {

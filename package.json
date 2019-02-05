@@ -10,6 +10,8 @@
     "docker-build": "docker build -t fpsak-at .  --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY",
     "docker-start": "yarn docker-stop; yarn docker-build; docker run -d --env-file=.env --name fpsak-at --net=host fpsak-at",
     "docker-stop": "docker stop fpsak-at; docker rm fpsak-at",
-    "test": "cypress run --spec cypress/integration/innlogging.spec.js"
+    "test": "cypress run --spec cypress/integration/sok-fagsak.spec.js -e SAKSNUMMER=130151425",
+    "docker-build-ytelse": "docker build -t fpsak-ytelse . -f ./Dockerfile.ytelse",
+    "docker-run-ytelse": "docker run -d --name worker1 fpsak-ytelse"
   }
 }
