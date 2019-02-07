@@ -61,6 +61,7 @@ typings/
 .next
 .idea
 cypress.env.json
+secrets.json
 **/cypress/videos
 **/cypress/screenshots
 **/cypress/test-data/test-identer

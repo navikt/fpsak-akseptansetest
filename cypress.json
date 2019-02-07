@@ -1,9 +1,11 @@
 {
-  "baseUrl": "https://app-q1.adeo.no",
   "viewportWidth": 1500,
   "viewportHeight": 700,
   "video": false,
   "trashAssetsBeforeRuns": false,
   "env": {
+    "OIDC_COOKIE_NAME": "nav-isso",
+    "VTP_BASE": "http://localhost:8060",
+    "TESTHUB_BASE": "http://e34apvl00250.devillo.no:8050"
   }
 }

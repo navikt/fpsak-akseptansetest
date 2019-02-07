@@ -1,0 +1,9 @@
+{
+  "baseUrl": "https://app-q1.adeo.no",
+  "env": {
+    "USERNAME": "Z990654",
+    "OIDC_AGENTNAME": "fpsak-frontend-q1",
+    "OIDC_HOST_URL": "https://isso-q.adeo.no:443/isso/oauth2",
+    "OIDC_REDIRECT_URI": "https://app-q1.adeo.no/fpsak/cb"
+  }
+}

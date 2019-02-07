@@ -1,0 +1,9 @@
+{
+  "baseUrl": "https://app-t10.adeo.no",
+  "env": {
+    "USERNAME": "Z990654",
+    "OIDC_AGENTNAME": "fpsak-localhost",
+    "OIDC_HOST_URL": "https://isso-t.adeo.no:443/isso/oauth2",
+    "OIDC_REDIRECT_URI": "http://localhost:9000/fpsak/cb"
+  }
+}
