@@ -1,3 +1,4 @@
 FROM docker.adeo.no:5000/fpmock2:latest
 RUN mkdir /app/testcerts
 COPY keystore/vtpkeystore /app/testcerts/vtpkeystore.jks
+COPY keystore/vtpkeystore /var/run/secrets/naisd.io/nav_truststore_path

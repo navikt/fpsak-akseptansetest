@@ -13,7 +13,7 @@
     "test": "cypress run --spec cypress/integration/sok-fagsak.spec.js -e SAKSNUMMER=130151425,ENVIRONMENT=q1",
     "docker-build-ytelse": "docker build -t fpsak-ytelse . -f ./Dockerfile.ytelse",
     "docker-run-ytelse": "docker run -d --name worker1 fpsak-ytelse",
-    "up": "docker-compose up -d",
+    "up": "docker-compose up -d --remove-orphans",
     "down": "docker-compose down"
   },
   "dependencies": {

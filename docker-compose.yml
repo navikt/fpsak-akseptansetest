@@ -1,25 +1,25 @@
 version: '3'
 services:
-  fpsak-frontend:
-    image: docker.adeo.no:5000/fpsak-frontend
-    ports:
-      - 9000:9000
-    links:
-      - fpsak
-      - fpsak-redis
-      - fpmock2
-    environment:
-      - APP_PORT=9000
-      - REDIS_HOST=fpsak-redis
-      - OIDC_AGENTNAME=fpsak-localhost
-      - USERNAME=beslut
-      - APP_URL_FPSAK=http://fpsak:8080
-      - OIDC_HOST_URL=https://fpmock2:8063/isso
-      - OIDC_REDIRECT_URI=http://localhost:9000/fpsak/cb
-  fpsak-redis:
-    image: redis
+#  fpsak-frontend:
+#    image: docker.adeo.no:5000/fpsak-frontend
+#    ports:
+#      - 9000:9000
+#    links:
+#      - fpsak
+#      - fpsak-redis
+#      - fpmock2
+#    environment:
+#      - APP_PORT=9000
+#      - REDIS_HOST=fpsak-redis
+#      - OIDC_AGENTNAME=fpsak-localhost
+#      - USERNAME=beslut
+#      - APP_URL_FPSAK=http://fpsak:8080
+#      - OIDC_HOST_URL=https://fpmock2:8063/isso
+#      - OIDC_REDIRECT_URI=http://localhost:9000/fpsak/cb
+#  fpsak-redis:
+#    image: redis
   fpmock2:
-    image: repo.adeo.no:5443/fpmock2:v201902281626
+    image: repo.adeo.no:5443/fpmock2:v201903011036
     ports:
       - 8060:8060
       - 8063:8063
@@ -30,18 +30,23 @@ services:
       - CUSTOM_KEYSTORE_PATH=/var/run/secrets/naisd.io/nav_truststore_path
       - CUSTOM_KEYSTORE_PASSWORD=changeit
       - ENABLE_CUSTOM_TRUSTSTORE=true
-    volumes:
-      - "./fpsak-for-vtp/keystore/vtpkeystore:/var/run/secrets/naisd.io/nav_truststore_path"
+      - AUTOTEST_OAUTH2_ISSUER_SCHEME=https
+      - AUTOTEST_OAUTH2_ISSUER_URL=fpmock2
+      - AUTOTEST_OAUTH2_ISSUER_PORT=8063
+      - AUTOTEST_OAUTH2_ISSUER_PATH=/isso/oauth2
   fpsak:
-    image: repo.adeo.no:5443/fpsak-for-vtp:v201902281626
+    image: repo.adeo.no:5443/fpsak-for-vtp:v201903011036
     links:
       - fpsak-oracle
       - fpmock2
     ports:
       - 8080:8080
-    volumes:
-      - "./fpsak-for-vtp/keystore/nav_truststore_path:/var/run/secrets/naisd.io/nav_truststore_path"
+    environment:
+      - DEFAULTDS_URL=jdbc:oracle:thin:@fpsak-oracle:1521/XE
+      - DVHDS_URL=jdbc:oracle:thin:@fpsak-oracle:1521/XE
   fpsak-oracle:
     image: repo.adeo.no:5443/fpsak-oracle:v201902281601
-
+    shm_size: 1gb
+    ports:
+      - 1521:1521
 
