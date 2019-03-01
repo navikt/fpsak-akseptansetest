@@ -19,8 +19,7 @@ services:
 #  fpsak-redis:
 #    image: redis
   fpmock2:
-    #image: repo.adeo.no:5443/fpmock2:v201903011036
-    image: repo.adeo.no:5443/fpmock2:latest
+    image: repo.adeo.no:5443/fpmock2:v201903011748
     ports:
       - 8060:8060
       - 8063:8063
@@ -32,7 +31,7 @@ services:
       - AUTOTEST_FPSAK_BASE_URL=http://fpsak:8080
       - AUTOTEST_VTP_BASE_URL=http://fpmock2:8060
   fpsak:
-    image: repo.adeo.no:5443/fpsak-for-vtp:latest
+    image: repo.adeo.no:5443/fpsak-for-vtp:v201903011747
     links:
       - fpsak-oracle
       - fpmock2
