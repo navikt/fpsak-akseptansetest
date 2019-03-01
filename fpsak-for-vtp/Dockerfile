@@ -1,4 +1,5 @@
 FROM docker.adeo.no:5000/fpsak:latest
+RUN mkdir -p /var/run/secrets/naisd.io/
 COPY . .
 RUN chmod +x getmqclients.sh && ./getmqclients.sh
 RUN mv okonomi.jar /app/lib

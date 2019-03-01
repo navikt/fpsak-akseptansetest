@@ -19,23 +19,20 @@ services:
 #  fpsak-redis:
 #    image: redis
   fpmock2:
-    image: repo.adeo.no:5443/fpmock2:v201903011036
+    #image: repo.adeo.no:5443/fpmock2:v201903011036
+    image: repo.adeo.no:5443/fpmock2:latest
     ports:
       - 8060:8060
       - 8063:8063
     environment:
-      - NAV_TRUSTSTORE_PATH=/var/run/secrets/naisd.io/nav_truststore_path
-      - NAV_TRUSTSTORE_KEYSTOREALIAS=na
-      - NAV_TRUSTSTORE_PASSWORD=changeit
-      - CUSTOM_KEYSTORE_PATH=/var/run/secrets/naisd.io/nav_truststore_path
+      - CUSTOM_KEYSTORE_PATH=/app/testcerts/vtpkeystore.jks
       - CUSTOM_KEYSTORE_PASSWORD=changeit
       - ENABLE_CUSTOM_TRUSTSTORE=true
-      - AUTOTEST_OAUTH2_ISSUER_SCHEME=https
-      - AUTOTEST_OAUTH2_ISSUER_URL=fpmock2
-      - AUTOTEST_OAUTH2_ISSUER_PORT=8063
-      - AUTOTEST_OAUTH2_ISSUER_PATH=/isso/oauth2
+      - AUTOTEST_OAUTH2_ISSUER=https://fpmock2:8063/isso/oauth2
+      - AUTOTEST_FPSAK_BASE_URL=http://fpsak:8080
+      - AUTOTEST_VTP_BASE_URL=http://fpmock2:8060
   fpsak:
-    image: repo.adeo.no:5443/fpsak-for-vtp:v201903011036
+    image: repo.adeo.no:5443/fpsak-for-vtp:latest
     links:
       - fpsak-oracle
       - fpmock2
