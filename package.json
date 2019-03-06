@@ -13,12 +13,13 @@
     "test": "cypress run --spec cypress/integration/sok-fagsak.spec.js -e SAKSNUMMER=130151425,ENVIRONMENT=q1",
     "docker-build-ytelse": "docker build -t fpsak-ytelse . -f ./Dockerfile.ytelse",
     "docker-run-ytelse": "docker run -d --name worker1 fpsak-ytelse",
-    "up": "docker-compose up -d --remove-orphans",
+    "up": "docker-compose up -d --remove-orphans --build && wait-on http://localhost:8080/fpsak/internal/health/isReady",
     "down": "docker-compose down",
     "push-local": "./"
   },
   "dependencies": {
     "deepmerge": "^3.1.0",
-    "fs-extra": "^7.0.1"
+    "fs-extra": "^7.0.1",
+    "wait-on": "^3.2.0"
   }
 }

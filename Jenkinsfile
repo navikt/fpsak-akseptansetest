@@ -31,9 +31,9 @@ node {
                  'no_proxy=localhost,127.0.0.1,.local,.adeo.no,.nav.no,.aetat.no,.devillo.no,.oera.no',
                  'NODE_TLS_REJECT_UNAUTHORIZED=0'
         ]) {
-            System.setProperty("java.net.useSystemProxies", "true")
-            System.setProperty("http.nonProxyHosts", "*.adeo.no")
             sh "yarn install"
+            // Tar opp applikasjonen og venter på at alt er klart.
+            sh "yarn up" 
         }
 
         sh "docker build --build-arg version=${releaseVersion} --build-arg app_name=${app} -t ${dockerRepo}/${app}:${releaseVersion} ."
