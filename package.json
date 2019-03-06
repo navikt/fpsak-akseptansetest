@@ -14,7 +14,8 @@
     "docker-build-ytelse": "docker build -t fpsak-ytelse . -f ./Dockerfile.ytelse",
     "docker-run-ytelse": "docker run -d --name worker1 fpsak-ytelse",
     "up": "docker-compose up -d --remove-orphans",
-    "down": "docker-compose down"
+    "down": "docker-compose down",
+    "push-local": "./"
   },
   "dependencies": {
     "deepmerge": "^3.1.0",
