@@ -10,6 +10,10 @@ node {
     def zone = 'sbs'
     def namespace = 'default'
 
+    stage('Prepare') {
+        sh "npm install -g yarn"
+    }
+    
     stage("Checkout") {
         cleanWs()
         withEnv(['HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088']) {
@@ -32,6 +36,7 @@ node {
                  'NODE_TLS_REJECT_UNAUTHORIZED=0'
         ]) {
             sh "yarn install"
+
             // Tar opp applikasjonen og venter på at alt er klart.
             sh "yarn up" 
         }
