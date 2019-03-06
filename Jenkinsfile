@@ -3,7 +3,7 @@ node {
     def project = "navikt"
     def app = "fpsak-akseptansetest"
     def committer, committerEmail, releaseVersion
-    def appConfig = "nais.yaml"
+
     def dockerRepo = "repo.adeo.no:5443"
     def branch = "master"
     def groupId = "nais"
@@ -39,14 +39,14 @@ node {
         sh "docker build --build-arg version=${releaseVersion} --build-arg app_name=${app} -t ${dockerRepo}/${app}:${releaseVersion} ."
 
         withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'nexusUser', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-            sh "docker login -u ${env.USERNAME} -p ${env.PASSWORD} ${dockerRepo} && docker push ${dockerRepo}/${app}:${releaseVersion}"
-            sh "curl --fail -v -u ${env.USERNAME}:${env.PASSWORD} --upload-file ${appConfig} https://repo.adeo.no/repository/raw/${groupId}/${app}/${releaseVersion}/nais.yaml"
+            //sh "docker login -u ${env.USERNAME} -p ${env.PASSWORD} ${dockerRepo} && docker push ${dockerRepo}/${app}:${releaseVersion}"
         }
-
+        /*
         slackSend([
             color: 'good',
             message: "Build <${env.BUILD_URL}|#${env.BUILD_NUMBER}> (<${commitUrl}|${commitHashShort}>) of ${project}/${app}@master by ${committer} passed"
-         ])
+        ])
+        */
     }
 
     stage("Deploy to preprod") {
@@ -62,6 +62,7 @@ node {
     }
 
     stage("Deploy to prod") {
+        /*
         withEnv(['HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088',
                'NO_PROXY=localhost,127.0.0.1,.local,.adeo.no,.nav.no,.aetat.no,.devillo.no,.oera.no',
                'no_proxy=localhost,127.0.0.1,.local,.adeo.no,.nav.no,.aetat.no,.devillo.no,.oera.no'
@@ -97,6 +98,7 @@ node {
                 throw new Exception("Deploy feilet :( \n Se https://jira.adeo.no/browse/" + deploy + " for detaljer", e)
             }
         }
+        */
     }
 
 }
