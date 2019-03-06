@@ -10,10 +10,8 @@ node {
     def zone = 'sbs'
     def namespace = 'default'
 
-    stage('Prepare') {
-        sh "npm install -g yarn"
-    }
-    
+
+
     stage("Checkout") {
         cleanWs()
         withEnv(['HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088']) {
@@ -29,14 +27,26 @@ node {
         echo "release version: ${releaseVersion}"
     }
 
+    stage('Fetch dependencies') {
+        agent {
+            docker 'circleci/node:9.3-stretch-browsers'
+        }
+        steps {
+            sh 'yarn'
+            stash includes: 'node_modules/', name: 'node_modules'
+        }
+    }
+
     stage("Build & publish") {
+        agent {
+            docker 'circleci/node:9.3-stretch-browsers'
+        }
         withEnv(['HTTPS_PROXY=http://webproxy-internett.nav.no:8088',
                  'NO_PROXY=localhost,127.0.0.1,.local,.adeo.no,.nav.no,.aetat.no,.devillo.no,.oera.no',
                  'no_proxy=localhost,127.0.0.1,.local,.adeo.no,.nav.no,.aetat.no,.devillo.no,.oera.no',
                  'NODE_TLS_REJECT_UNAUTHORIZED=0'
         ]) {
-            sh "yarn install"
-
+            unstash 'node_modules'
             // Tar opp applikasjonen og venter på at alt er klart.
             sh "yarn up" 
         }
