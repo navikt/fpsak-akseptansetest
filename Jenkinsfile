@@ -1,4 +1,4 @@
-node {
+pipeline {
     def commitHash, commitHashShort, commitUrl
     def project = "navikt"
     def app = "fpsak-akseptansetest"
