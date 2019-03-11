@@ -1,37 +1,42 @@
 version: '3'
 services:
-#  fpsak-frontend:
-#    image: docker.adeo.no:5000/fpsak-frontend
-#    ports:
-#      - 9000:9000
-#    links:
-#      - fpsak
-#      - fpsak-redis
-#      - fpmock2
-#    environment:
-#      - APP_PORT=9000
-#      - REDIS_HOST=fpsak-redis
-#      - OIDC_AGENTNAME=fpsak-localhost
-#      - USERNAME=beslut
-#      - APP_URL_FPSAK=http://fpsak:8080
-#      - OIDC_HOST_URL=https://fpmock2:8063/isso
-#      - OIDC_REDIRECT_URI=http://localhost:9000/fpsak/cb
-#  fpsak-redis:
-#    image: redis
+  frontend:
+   image: docker.adeo.no:5000/fpsak-frontend
+   ports:
+     - 9090:9090
+   links:
+     - fpsak
+     - fpsak-redis
+     - fpmock2
+   environment:
+     - APP_PORT=9090
+     - REDIS_HOST=fpsak-redis
+     - OIDC_AGENTNAME=fpsak-localhost
+     - USERNAME=beslut
+     - APP_URL_FPSAK=http://fpsak:8080
+     - OIDC_HOST_URL=http://fpmock2:8060/isso
+     - OIDC_REDIRECT_URI=http://localhost:9090/fpsak/cb
+  fpsak-redis:
+    image: redis
   fpmock2:
-    image: 'repo.adeo.no:5443/fpmock2:v201903071032'
+    image: repo.adeo.no:5443/fpmock2:v201903111706
     ports:
-      - 8060:8060
-      - 8063:8063
+      - 8060:8060 # HTTP
+      - 8063:8063 # HTTPS
+      - 8636:8636 # LDAPS
     environment:
       - CUSTOM_KEYSTORE_PATH=/app/testcerts/vtpkeystore.jks
       - CUSTOM_KEYSTORE_PASSWORD=changeit
+      - NAV_TRUSTSTORE_PATH=/app/testcerts/nav_truststore_path
+      - NAV_TRUSTSTORE_PASSWORD=changeit
       - ENABLE_CUSTOM_TRUSTSTORE=true
       - AUTOTEST_OAUTH2_ISSUER=https://fpmock2:8063/isso/oauth2
       - AUTOTEST_FPSAK_BASE_URL=http://fpsak:8080
       - AUTOTEST_VTP_BASE_URL=http://fpmock2:8060
+      - LDAP_PROVIDER_URL=ldaps://fpmock2:8636
+      - AUTHORIZE_BASE_URL=http://localhost:8060
   fpsak:
-    image: 'repo.adeo.no:5443/fpsak-for-vtp:v201903071032'
+    image: repo.adeo.no:5443/fpsak-for-vtp:v201903111317
     restart: on-failure
     links:
       - fpsak-oracle
