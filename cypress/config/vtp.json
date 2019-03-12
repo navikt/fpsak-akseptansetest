@@ -1,9 +1,9 @@
 {
   "baseUrl": "http://localhost:9000",
   "env": {
-    "USERNAME": "Z990654",
+    "USERNAME": "beslut",
     "OIDC_AGENTNAME": "fpsak-localhost",
-    "OIDC_HOST_URL": "https://localhost:8063/isso/oauth2",
+    "OIDC_HOST_URL": "http://localhost:8060/isso/oauth2",
     "OIDC_REDIRECT_URI": "http://localhost:9000/fpsak/cb"
   }
 }

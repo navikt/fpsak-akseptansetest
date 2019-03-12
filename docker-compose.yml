@@ -1,7 +1,7 @@
 version: '3'
 services:
   frontend:
-   image: docker.adeo.no:5000/fpsak-frontend
+   image: fpfront
    ports:
      - 9090:9090
    links:

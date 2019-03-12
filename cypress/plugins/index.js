@@ -13,6 +13,5 @@ module.exports = (on, config) => {
   const basename = config.env.ENVIRONMENT || 'dev';
   const fileContent = getConfigurationByFile(basename);
   const newConfig = deepmerge(config, fileContent);
-  console.log(newConfig);
   return newConfig;
 };

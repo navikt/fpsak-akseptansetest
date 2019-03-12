@@ -65,3 +65,4 @@ secrets.json
 **/cypress/videos
 **/cypress/screenshots
 **/cypress/test-data/test-identer
+.DS_Store
