@@ -11,8 +11,8 @@ Cypress.Commands.add('login', (openAmUsername, openAmPassword) => {
     openAmUsername,
   };
 
-  return getTokenCypress(config)
-    .then((token) => {
-      cy.setCookie('sut_ID_token', token.id_token);
-    });
+  return getTokenCypress(config).then((token) => {
+    cy.setCookie('sut_ID_token', token.id_token);
+    cy.setCookie('ID_token', token.id_token);
+  });
 });

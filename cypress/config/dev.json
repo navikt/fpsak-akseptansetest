@@ -1,5 +1,5 @@
 {
-  "baseUrl": "http://localhost:9090",
+  "baseUrl": "http://localhost:9000",
   "env": {
     "USERNAME": "Z990654",
     "OIDC_AGENTNAME": "fpsak-localhost",

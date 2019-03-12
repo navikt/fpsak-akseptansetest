@@ -10,7 +10,7 @@ function getConfigurationByFile(basename) {
 // plugins file
 module.exports = (on, config) => {
   // accept a configFile value or use development by default
-  const basename = config.env.ENVIRONMENT || 'dev';
+  const basename = config.env.ENVIRONMENT || 'vtp';
   const fileContent = getConfigurationByFile(basename);
   const newConfig = deepmerge(config, fileContent);
   return newConfig;
