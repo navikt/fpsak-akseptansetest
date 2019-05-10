@@ -77,6 +77,7 @@ services:
       - testcerts:/app/testcerts
     environment:
       - ABAC_PDP_ENDPOINT_URL=https://fpmock2:8063/rest/asm-pdp/authorize
+      - ABAKUS_VEDTATT_YTELSE_URL=https://localhost:8063/dev/null
       - AKTOER_V2_URL=https://fpmock2:8063/soap/aktoerregister/ws/Aktoer/v2
       - APP_NAME=fpsak
       - ARBEIDSFORDELING_V1_URL=https://fpmock2:8063/soap/norg2/ws/Arbeidsfordeling/v1
@@ -85,7 +86,6 @@ services:
       - BEHANDLEJOURNAL_V3_URL=https://fpmock2:8063/services/behandlejournal/v3
       - BEHANDLEOPPGAVE_V1_URL=https://fpmock2:8063/soap/nav-gsak-ws/BehandleOppgaveV1
       - BEHANDLESAK_V2_URL=https://fpmock2:8063/soap/nav-gsak-ws/BehandleSakV2
-      - EXTRA_CLASS_PATH=:vtp-lib/*
       - DEFAULTDS_PASSWORD=fpsak
       - DEFAULTDS_URL=jdbc:oracle:thin:@fpsak-oracle:1521/XE
       - DEFAULTDS_USERNAME=fpsak
@@ -93,6 +93,7 @@ services:
       - DVHDS_PASSWORD=fpsak_hist
       - DVHDS_URL=jdbc:oracle:thin:@fpsak-oracle:1521/XE
       - DVHDS_USERNAME=fpsak_hist
+      - EXTRA_CLASS_PATH=:vtp-lib/*
       - FPSAK_CHANNEL_NAME=U87_FPSAK_SSL
       - FPSAK_CHANNEL_QUEUEMANAGER=mq://e26apvl121.test.local:1411/MUXLSC01
       - FPSAK_OKONOMI_OPPDRAG_MOTTAK_QUEUEMANAGER=mq://vtpmq:1414/QM1
@@ -106,14 +107,14 @@ services:
       - INNTEKT_V3_URL=https://fpmock2:8063/soap/inntektskomponenten-ws/inntekt/v3/Inntekt
       - JOURNAL_V3_URL=https://fpmock2:8063/soap/joark/Journal/v3
       - KODEVERK_V2_URL=https://fpmock2:8063/soap/kodeverk/ws/Kodeverk/v2
-      - LDAP_URL=ldaps://fpmock2:8636/
       - LDAP_AUTH=none
-      - LDAP_USERNAME=dummy
-      - LDAP_USER_BASEDN=ou=NAV,ou=BusinessUnits,dc=test,dc=local
-      - LDAP_SERVICEUSER_BASEDN=ou=ServiceAccounts,dc=test,dc=local
-      - LDAP_DOMAIN=TEST.LOCAL
       - LDAP_BASEDN=dc=test,dc=local
+      - LDAP_DOMAIN=TEST.LOCAL
       - LDAP_PASSWORD=dummy
+      - LDAP_SERVICEUSER_BASEDN=ou=ServiceAccounts,dc=test,dc=local
+      - LDAP_URL=ldaps://fpmock2:8636/
+      - LDAP_USER_BASEDN=ou=NAV,ou=BusinessUnits,dc=test,dc=local
+      - LDAP_USERNAME=dummy
       - LOADBALANCER_FQDN=localhost:8080
       - LOGBACK_CONFIG=/app/vtp-lib/logback-dev.xml
       - MEDLEM_V2_URL=https://fpmock2:8063/soap/medl2/ws/Medlemskap/v2
@@ -144,7 +145,17 @@ services:
       - SIGRUNRESTBEREGNETSKATT_URL=https://fpmock2:8063
       - SYSTEMBRUKER_PASSWORD=not_relevant
       - SYSTEMBRUKER_USERNAME=vtp
-      - ABAKUS_VEDTATT_YTELSE_URL=https://localhost:8063/dev/null
+      - KAFKA_AKSJONSPUNKTHENDELSE_TOPIC=fpsak-aksjonspunkthendelse
+      - KAFKA_AKSJONSPUNKTHENDELSE_CLIENT_ID=fpsak
+      - KAFKA_AKSJONSPUNKTHENDELSE_SCHEMA_REGISTRY_URL=https://kafka-test-schema-registry.nais.preprod.local
+      - KAFKA_AKSJONSPUNKTHENDELSE_GROUP_ID=fpsak
+      - KAFKA_RISIKOKLASSIFISERING_TOPIC=fpsak-riskhendelse
+      - KAFKA_RISIKOKLASSIFISERING_CLIENT_ID=fpsak
+      - KAFKA_RISIKOKLASSIFISERING_SCHEMA_REGISTRY_URL=https://kafka-test-schema-registry.nais.preprod.local
+      - KAFKA_RISIKOKLASSIFISERING_GROUP_ID=fpsak
+      - BOOTSTRAP_SERVERS=kafka:19092
+      - FP_TILKJENTYTELSE_V1_TOPIC_URL=privat-foreldrepenger-tilkjentytelse-v1-t4
+
   fpsak-oracle:
     image: repo.adeo.no:5443/fpsak-oracle:v201902281601
     shm_size: 1gb
@@ -153,6 +164,32 @@ services:
     volumes:
       - oradata:/u01/app/oracle/oradata
 
+  kafka:
+    image: confluentinc/cp-kafka:5.1.0
+    networks:
+      default:
+        aliases:
+          - kafka
+    environment:
+      - KAFKA_ADVERTISED_LISTENERS=LISTENER_DOCKER_INTERNAL://kafka:19092,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=LISTENER_DOCKER_INTERNAL
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    volumes:
+      - ./_scripts:/kafka_scripts
+    command: ["kafka_scripts/wait_for_zookeeper.sh", "zookeeper:2181", "/etc/confluent/docker/run"]
+  zookeeper:
+    image: confluentinc/cp-zookeeper:5.1.0
+    environment:
+      - ZOOKEEPER_CLIENT_PORT=2181
+      - ZOOKEEPER_TICK_TIME=2000
+    ports:
+      - "2181:2181"
 volumes:
   testcerts:
   oradata:
