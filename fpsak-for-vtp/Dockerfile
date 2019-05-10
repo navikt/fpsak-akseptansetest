@@ -7,6 +7,7 @@ RUN mv sakogbehandling-klient.jar /app/lib
 RUN mv felles-integrasjon-jms.jar /app/lib
 COPY logback.xml /app/lib
 COPY keystore/nav_truststore_path /var/run/secrets/naisd.io/nav_truststore_path
+# kan legges inn via volumes?
 
 ENV ABAC_PDP_ENDPOINT_DESCRIPTION="The XACML JSON Endpoint for evaluating attributes against policies"\
     ABAC_PDP_ENDPOINT_URL=https://fpmock2:8063/asm-pdp/authorize\

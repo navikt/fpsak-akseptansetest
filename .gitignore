@@ -55,7 +55,7 @@ typings/
 .yarn-integrity
 
 # dotenv environment variables file
-.env
+*.env
 
 # next.js build output
 .next
@@ -66,3 +66,4 @@ secrets.json
 **/cypress/screenshots
 **/cypress/test-data/test-identer
 .DS_Store
+tmp
