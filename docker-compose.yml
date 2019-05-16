@@ -1,19 +1,19 @@
 version: '3'
 services:
-#  frontend:
-#    image: ${FRONTEND_IMAGE}
-#    ports:
-#      - ${FRONTEND_PORT}:${FRONTEND_PORT}
-#    environment:
-#      - APP_PORT=${FRONTEND_PORT}
-#      - APP_URL_FPSAK=http://fpsak:8080
-#      - OIDC_HOST_URL=http://host.docker.internal:8060/isso/oauth2
-#      - OIDC_REDIRECT_URI=http://localhost:${FRONTEND_PORT}/fpsak/cb
-#      - REDIS_HOST=redis
-#    links:
-#      - redis
-#    volumes:
-#      - ./dist:/app/fpsak
+  frontend:
+    image: ${FRONTEND_IMAGE}
+    ports:
+      - ${FRONTEND_PORT}:${FRONTEND_PORT}
+    environment:
+      - APP_PORT=${FRONTEND_PORT}
+      - APP_URL_FPSAK=http://fpsak:8080
+      - OIDC_HOST_URL=http://host.docker.internal:8060/isso/oauth2
+      - OIDC_REDIRECT_URI=http://localhost:${FRONTEND_PORT}/fpsak/cb
+      - REDIS_HOST=redis
+    links:
+      - redis
+    volumes:
+      - ./dist:/app/fpsak
 
   redis:
     image: redis
@@ -28,6 +28,7 @@ services:
       - 8060:8060 # HTTP
       - 8389:8389 # LDAP
     environment:
+      - JAVA_OPTS=XX:+UseContainerSupport
       - AUTHORIZE_BASE_URL=http://host.docker.internal:8060/rest/isso/oauth2
       - AUTOTEST_FPSAK_BASE_URL=http://fpsak:8080
       - AUTOTEST_OAUTH2_ISSUER=https://localhost:8063/rest/isso/oauth2
@@ -65,6 +66,51 @@ services:
       - GOSSLTERM_BACKEND_ADDR=fpsak:8080
       - GOSSLTERM_FRONTEND_ADDR=:8443
 
+  fpfordel:
+    image: ${FORDEL_IMAGE}
+    ports:
+      - 8090:8090
+    volumes:
+      - testcerts:/app/testcerts
+    environment:
+      - JAVA_OPTS=XX:+UseContainerSupport
+      - APP_NAME=fpfordel
+      - DEFAULTDS_PASSWORD=fpfordel
+      - DEFAULTDS_URL=jdbc:oracle:thin:@fpsak-oracle:1521/XE
+      - DEFAULTDS_USERNAME=fpfordel
+      - FASIT_ENVIRONMENT_NAME=local
+      - FORELDREPENGER_STARTDATO=2017-01-01
+      - FP_STATUSINFORMASJON_URL=http://fpsak:8080/fpsak/api/dokumentforsendelse/status
+      - FPSAK_JOURNALPOSTKNYTTNING_URL=http://fpsak:8080/fpsak/api/fordel/fagsak/knyttJournalpost
+      - FPSAK_MOTTAJOURNALPOST_URL=http://fpsak:8080/fpsak/api/fordel/journalpost
+      - FPSAK_OPPRETT_SAK_URL=http://fpsak:8080/fpsak/api/fordel/fagsak/opprett
+      - FPSAK_SAKSINFORMASJON_URL=http://fpsak:8080/fpsak/api/fordel/fagsak/informasjon
+      - FPSAK_VURDERFAGSYSTEM_URL=http://fpsak:8080/fpsak/api/fordel/vurderFagsystem
+      - LOADBALANCER_FQDN=localhost:8090
+      - LOGBACK_CONFIG=./conf/logback-dev.xml
+      - SERVER_PORT=8090
+      - ENVIRONMENT_NAME=devimg
+      - NAV_TRUSTSTORE_PASSWORD=changeit
+      - NAV_TRUSTSTORE_PATH=/app/testcerts/nav_truststore_path
+      - MOTTAK_QUEUE_QUEUEMANAGER=mq://e26apvl121.test.local:1411/MUXLSC01
+      - MOTTAK_QUEUE_QUEUENAME=QA.U87_FPSAK_SSL.MOTTAK_QUEUE
+      - MQGATEWAY02_CHANNEL=U87_FPSAK_SSL
+      - MQGATEWAY02_HOSTNAME=e26apvl121.test.local
+      - MQGATEWAY02_NAME=MUXLSC01
+      - MQGATEWAY02_PORT=1411
+      - MQGATEWAY02_USESSLONJETTY=true
+#  fpinfo:
+#    image: ${INFO_IMAGE}
+#    ports:
+#      - 8020:8020
+#    environment:
+#      - DEFAULTDS_PASSWORD=fpinfointern
+#      - DEFAULTDS_URL=jdbc:oracle:thin:@fpsak-oracle:1521/XE
+#      - DEFAULTDS_USERNAME=fpinfointern
+#      - FPINFOINTERNSCHEMA_PASSWORD=fpinfointern_schema
+#      - FPINFOINTERNSCHEMA_URL=jdbc:oracle:thin:@fpsak-oracle:1521/XE
+#      - FPINFOINTERNSCHEMA_USERNAME=fpinfointern_schema
+
   fpsak:
     image: ${FPSAK_IMAGE}
     restart: on-failure
@@ -76,6 +122,7 @@ services:
     volumes:
       - testcerts:/app/testcerts
     environment:
+      - JAVA_OPTS=XX:+UseContainerSupport
       - ABAC_PDP_ENDPOINT_URL=https://fpmock2:8063/rest/asm-pdp/authorize
       - ABAKUS_VEDTATT_YTELSE_URL=https://localhost:8063/dev/null
       - AKTOER_V2_URL=https://fpmock2:8063/soap/aktoerregister/ws/Aktoer/v2
@@ -157,7 +204,7 @@ services:
       - FP_TILKJENTYTELSE_V1_TOPIC_URL=privat-foreldrepenger-tilkjentytelse-v1-t4
 
   fpsak-oracle:
-    image: repo.adeo.no:5443/fpsak-oracle:v201902281601
+    image: repo.adeo.no:5443/fpsak-oracle:v201905131354
     shm_size: 1gb
     ports:
       - 1521:1521
@@ -183,6 +230,7 @@ services:
     volumes:
       - ./_scripts:/kafka_scripts
     command: ["kafka_scripts/wait_for_zookeeper.sh", "zookeeper:2181", "/etc/confluent/docker/run"]
+
   zookeeper:
     image: confluentinc/cp-zookeeper:5.1.0
     environment:
