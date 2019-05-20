@@ -10,7 +10,7 @@ export LOS_IMAGE=$(kubectl get pods -nt4 -l app=fplos -o jsonpath="{.items[*].sp
 export OPPDRAG_IMAGE=$(kubectl get pods -nt4 -l app=fpoppdrag -o jsonpath="{.items[*].spec.containers[*].image}" | awk '{print $1;}')
 export RISK_IMAGE=$(kubectl get pods -nt4 -l app=fprisk -o jsonpath="{.items[*].spec.containers[*].image}" | awk '{print $1;}')
 export TILBAKE_IMAGE=$(kubectl get pods -nt4 -l app=fptilbake -o jsonpath="{.items[*].spec.containers[*].image}" | awk '{print $1;}')
-export VTP_IMAGE=$(node ./_scripts/get-version.js fpmock2)
+export VTP_VERSION=$(node ./_scripts/get-version.js fpmock2)
 
 
 echo ABONNENT_IMAGE=${ABONNENT_IMAGE} > .env
@@ -24,5 +24,5 @@ echo LOS_IMAGE=${LOS_IMAGE} >> .env
 echo OPPDRAG_IMAGE=${OPPDRAG_IMAGE} >> .env
 echo RISK_IMAGE=${RISK_IMAGE} >> .env
 echo TILBAKE_IMAGE=${TILBAKE_IMAGE} >> .env
-echo VTP_IMAGE=${VTP_IMAGE} >> .env
+echo VTP_IMAGE=repo.adeo.no:5443/fpmock2:${VTP_VERSION} >> .env
 sed -i "" 's/docker.adeo.no:5000/repo.adeo.no:5443/g' .env

@@ -7,11 +7,12 @@ services:
     environment:
       - APP_PORT=${FRONTEND_PORT}
       - APP_URL_FPSAK=http://fpsak:8080
-      - OIDC_HOST_URL=http://host.docker.internal:8060/isso/oauth2
+      - OIDC_HOST_URL=http://host.docker.internal:8060/rest/isso/oauth2
       - OIDC_REDIRECT_URI=http://localhost:${FRONTEND_PORT}/fpsak/cb
       - REDIS_HOST=redis
     links:
       - redis
+      - fpsak
     volumes:
       - ./dist:/app/fpsak
 
@@ -28,8 +29,8 @@ services:
       - 8060:8060 # HTTP
       - 8389:8389 # LDAP
     environment:
-      - JAVA_OPTS=XX:+UseContainerSupport
-      - AUTHORIZE_BASE_URL=http://host.docker.internal:8060/rest/isso/oauth2
+      #- JAVA_OPTS=-XX:MaxRAMPercentage=80
+      - AUTHORIZE_BASE_URL=http://host.docker.internal:8060
       - AUTOTEST_FPSAK_BASE_URL=http://fpsak:8080
       - AUTOTEST_OAUTH2_ISSUER=https://localhost:8063/rest/isso/oauth2
       - AUTOTEST_VTP_BASE_URL=http://fpmock2:8060
@@ -73,7 +74,7 @@ services:
     volumes:
       - testcerts:/app/testcerts
     environment:
-      - JAVA_OPTS=XX:+UseContainerSupport
+      - JAVA_OPTS=-XX:MaxRAMPercentage=80
       - APP_NAME=fpfordel
       - DEFAULTDS_PASSWORD=fpfordel
       - DEFAULTDS_URL=jdbc:oracle:thin:@fpsak-oracle:1521/XE
@@ -99,17 +100,31 @@ services:
       - MQGATEWAY02_NAME=MUXLSC01
       - MQGATEWAY02_PORT=1411
       - MQGATEWAY02_USESSLONJETTY=true
-#  fpinfo:
-#    image: ${INFO_IMAGE}
-#    ports:
-#      - 8020:8020
-#    environment:
-#      - DEFAULTDS_PASSWORD=fpinfointern
-#      - DEFAULTDS_URL=jdbc:oracle:thin:@fpsak-oracle:1521/XE
-#      - DEFAULTDS_USERNAME=fpinfointern
-#      - FPINFOINTERNSCHEMA_PASSWORD=fpinfointern_schema
-#      - FPINFOINTERNSCHEMA_URL=jdbc:oracle:thin:@fpsak-oracle:1521/XE
-#      - FPINFOINTERNSCHEMA_USERNAME=fpinfointern_schema
+
+  fpinfo:
+    image: ${INFO_IMAGE}
+    ports:
+      - 8020:8020
+    environment:
+      - DEFAULTDS_PASSWORD=fpinfointern
+      - DEFAULTDS_URL=jdbc:oracle:thin:@fpsak-oracle:1521/XE
+      - DEFAULTDS_USERNAME=fpinfointern
+      - FPINFOINTERNSCHEMA_PASSWORD=fpinfointern_schema
+      - FPINFOINTERNSCHEMA_URL=jdbc:oracle:thin:@fpsak-oracle:1521/XE
+      - FPINFOINTERNSCHEMA_USERNAME=fpinfointern_schema
+
+  fplos:
+    image: ${LOS_IMAGE}
+    ports:
+      - 8070:8070
+    environment:
+      - APP_NAME=fplos
+      - DEFAULTDS_PASSWORD=fplos
+      - DEFAULTDS_URL=jdbc:oracle:thin:@fpsak-oracle:1521/XE
+      - DEFAULTDS_USERNAME=fplos
+      - KAFKA_AKSJONSPUNKTHENDELSE_TOPIC=fpsak-aksjonspunkthendelse
+      - KAFKA_AKSJONSPUNKTHENDELSE_CLIENT_ID=fplos
+      - KAFKA_AKSJONSPUNKTHENDELSE_GROUP_ID=fplos
 
   fpsak:
     image: ${FPSAK_IMAGE}
@@ -122,7 +137,7 @@ services:
     volumes:
       - testcerts:/app/testcerts
     environment:
-      - JAVA_OPTS=XX:+UseContainerSupport
+      - JAVA_OPTS=-XX:MaxRAMPercentage=80
       - ABAC_PDP_ENDPOINT_URL=https://fpmock2:8063/rest/asm-pdp/authorize
       - ABAKUS_VEDTATT_YTELSE_URL=https://localhost:8063/dev/null
       - AKTOER_V2_URL=https://fpmock2:8063/soap/aktoerregister/ws/Aktoer/v2
