@@ -8,13 +8,14 @@ services:
       - APP_PORT=${FRONTEND_PORT}
       - APP_URL_FPSAK=http://fpsak:8080
       - OIDC_HOST_URL=http://host.docker.internal:8060/rest/isso/oauth2
-      - OIDC_REDIRECT_URI=http://localhost:${FRONTEND_PORT}/fpsak/cb
+      - OIDC_AGENTNAME=foo
+      - OIDC_PASSWORD=bar
       - REDIS_HOST=redis
     links:
       - redis
       - fpsak
-    volumes:
-      - ./dist:/app/fpsak
+    env_file:
+      - ./common.list
 
   redis:
     image: redis
@@ -29,7 +30,6 @@ services:
       - 8060:8060 # HTTP
       - 8389:8389 # LDAP
     environment:
-      #- JAVA_OPTS=-XX:MaxRAMPercentage=80
       - AUTHORIZE_BASE_URL=http://host.docker.internal:8060
       - AUTOTEST_FPSAK_BASE_URL=http://fpsak:8080
       - AUTOTEST_OAUTH2_ISSUER=https://localhost:8063/rest/isso/oauth2
@@ -38,10 +38,10 @@ services:
       - CUSTOM_KEYSTORE_PATH=/app/testcerts/vtpkeystore.jks
       - ENABLE_CUSTOM_TRUSTSTORE=true
       - LDAP_PROVIDER_URL=ldaps://fpmock2:8636
-      - NAV_TRUSTSTORE_PASSWORD=changeit
-      - NAV_TRUSTSTORE_PATH=/app/testcerts/nav_truststore_path
     volumes:
       - testcerts:/app/testcerts
+    env_file:
+      - ./common.list
 
   vtp-https:
     image: repo.adeo.no:5443/localhost-ssl-term:v201905071038
@@ -71,64 +71,58 @@ services:
     image: ${FORDEL_IMAGE}
     ports:
       - 8090:8090
+    env_file:
+      - ./common.list
     volumes:
       - testcerts:/app/testcerts
     environment:
-      - JAVA_OPTS=-XX:MaxRAMPercentage=80
       - APP_NAME=fpfordel
       - DEFAULTDS_PASSWORD=fpfordel
-      - DEFAULTDS_URL=jdbc:oracle:thin:@fpsak-oracle:1521/XE
       - DEFAULTDS_USERNAME=fpfordel
-      - FASIT_ENVIRONMENT_NAME=local
       - FORELDREPENGER_STARTDATO=2017-01-01
-      - FP_STATUSINFORMASJON_URL=http://fpsak:8080/fpsak/api/dokumentforsendelse/status
-      - FPSAK_JOURNALPOSTKNYTTNING_URL=http://fpsak:8080/fpsak/api/fordel/fagsak/knyttJournalpost
-      - FPSAK_MOTTAJOURNALPOST_URL=http://fpsak:8080/fpsak/api/fordel/journalpost
-      - FPSAK_OPPRETT_SAK_URL=http://fpsak:8080/fpsak/api/fordel/fagsak/opprett
-      - FPSAK_SAKSINFORMASJON_URL=http://fpsak:8080/fpsak/api/fordel/fagsak/informasjon
-      - FPSAK_VURDERFAGSYSTEM_URL=http://fpsak:8080/fpsak/api/fordel/vurderFagsystem
       - LOADBALANCER_FQDN=localhost:8090
       - LOGBACK_CONFIG=./conf/logback-dev.xml
       - SERVER_PORT=8090
-      - ENVIRONMENT_NAME=devimg
-      - NAV_TRUSTSTORE_PASSWORD=changeit
-      - NAV_TRUSTSTORE_PATH=/app/testcerts/nav_truststore_path
       - MOTTAK_QUEUE_QUEUEMANAGER=mq://e26apvl121.test.local:1411/MUXLSC01
       - MOTTAK_QUEUE_QUEUENAME=QA.U87_FPSAK_SSL.MOTTAK_QUEUE
-      - MQGATEWAY02_CHANNEL=U87_FPSAK_SSL
-      - MQGATEWAY02_HOSTNAME=e26apvl121.test.local
-      - MQGATEWAY02_NAME=MUXLSC01
-      - MQGATEWAY02_PORT=1411
-      - MQGATEWAY02_USESSLONJETTY=true
 
-  fpinfo:
+  fpinfo-intern:
     image: ${INFO_IMAGE}
     ports:
-      - 8020:8020
+      - 8020:8080
+    env_file:
+      - ./common.list
+    volumes:
+      - testcerts:/app/testcerts
     environment:
+      - APP_NAME=fpinfo-intern
       - DEFAULTDS_PASSWORD=fpinfointern
-      - DEFAULTDS_URL=jdbc:oracle:thin:@fpsak-oracle:1521/XE
       - DEFAULTDS_USERNAME=fpinfointern
       - FPINFOINTERNSCHEMA_PASSWORD=fpinfointern_schema
       - FPINFOINTERNSCHEMA_URL=jdbc:oracle:thin:@fpsak-oracle:1521/XE
       - FPINFOINTERNSCHEMA_USERNAME=fpinfointern_schema
+      - LOADBALANCER_FQDN=localhost:8020
 
   fplos:
     image: ${LOS_IMAGE}
     ports:
-      - 8070:8070
+      - 8070:8080
+    env_file:
+      - ./common.list
+    volumes:
+      - testcerts:/app/testcerts
     environment:
       - APP_NAME=fplos
       - DEFAULTDS_PASSWORD=fplos
-      - DEFAULTDS_URL=jdbc:oracle:thin:@fpsak-oracle:1521/XE
       - DEFAULTDS_USERNAME=fplos
-      - KAFKA_AKSJONSPUNKTHENDELSE_TOPIC=fpsak-aksjonspunkthendelse
       - KAFKA_AKSJONSPUNKTHENDELSE_CLIENT_ID=fplos
       - KAFKA_AKSJONSPUNKTHENDELSE_GROUP_ID=fplos
-
+      - LOADBALANCER_FQDN=localhost:8070
   fpsak:
     image: ${FPSAK_IMAGE}
     restart: on-failure
+    env_file:
+      - ./common.list
     links:
       - fpsak-oracle
       - fpmock2
@@ -137,89 +131,35 @@ services:
     volumes:
       - testcerts:/app/testcerts
     environment:
-      - JAVA_OPTS=-XX:MaxRAMPercentage=80
-      - ABAC_PDP_ENDPOINT_URL=https://fpmock2:8063/rest/asm-pdp/authorize
-      - ABAKUS_VEDTATT_YTELSE_URL=https://localhost:8063/dev/null
-      - AKTOER_V2_URL=https://fpmock2:8063/soap/aktoerregister/ws/Aktoer/v2
       - APP_NAME=fpsak
-      - ARBEIDSFORDELING_V1_URL=https://fpmock2:8063/soap/norg2/ws/Arbeidsfordeling/v1
-      - ARBEIDSFORHOLD_V3_URL=https://fpmock2:8063/soap/aareg-core/ArbeidsforholdService/v3
-      - BEHANDLEINNGAAENDEJOURNAL_V1_URL=https://fpmock2:8063/services/behandleinngaaendejournal/v1
-      - BEHANDLEJOURNAL_V3_URL=https://fpmock2:8063/services/behandlejournal/v3
-      - BEHANDLEOPPGAVE_V1_URL=https://fpmock2:8063/soap/nav-gsak-ws/BehandleOppgaveV1
-      - BEHANDLESAK_V2_URL=https://fpmock2:8063/soap/nav-gsak-ws/BehandleSakV2
       - DEFAULTDS_PASSWORD=fpsak
-      - DEFAULTDS_URL=jdbc:oracle:thin:@fpsak-oracle:1521/XE
       - DEFAULTDS_USERNAME=fpsak
-      - DOKUMENTPRODUKSJON_V2_URL=https://fpmock2:8063/soap/dokprod/ws/dokumentproduksjon/v2
       - DVHDS_PASSWORD=fpsak_hist
       - DVHDS_URL=jdbc:oracle:thin:@fpsak-oracle:1521/XE
       - DVHDS_USERNAME=fpsak_hist
       - EXTRA_CLASS_PATH=:vtp-lib/*
+      - FP_TILKJENTYTELSE_V1_TOPIC_URL=privat-foreldrepenger-tilkjentytelse-v1-t4
       - FPSAK_CHANNEL_NAME=U87_FPSAK_SSL
       - FPSAK_CHANNEL_QUEUEMANAGER=mq://e26apvl121.test.local:1411/MUXLSC01
       - FPSAK_OKONOMI_OPPDRAG_MOTTAK_QUEUEMANAGER=mq://vtpmq:1414/QM1
       - FPSAK_OKONOMI_OPPDRAG_MOTTAK_QUEUENAME=VTP.OKONOMI.INN
       - FPSAK_OKONOMI_OPPDRAG_SEND_QUEUENAME=VTP.OKONOMI.UT
-      - HENTINNTEKTLISTEBOLK_URL=https://fpmock2:8063/rest/inntektskomponenten-ws/rs/api/v1/hentinntektlistebolk
-      - INFOTRYGD_HENDELSER_API_URL=https://fpmock2:8063/rest/infotrygd/hendelser
-      - INFOTRYGDBEREGNINGSGRUNNLAG_V1_URL=https://fpmock2:8063/soap/infotrygd-ws/InfotrygdBeregningsgrunnlag/v1
-      - INFOTRYGDSAK_V1_URL=https://fpmock2:8063/soap/infotrygd-ws/InfotrygdSak/v1
-      - INNGAAENDEJOURNAL_V1_URL=https://fpmock2:8063/soap/joark/InngaaendeJournal/v1
-      - INNTEKT_V3_URL=https://fpmock2:8063/soap/inntektskomponenten-ws/inntekt/v3/Inntekt
-      - JOURNAL_V3_URL=https://fpmock2:8063/soap/joark/Journal/v3
-      - KODEVERK_V2_URL=https://fpmock2:8063/soap/kodeverk/ws/Kodeverk/v2
-      - LDAP_AUTH=none
-      - LDAP_BASEDN=dc=test,dc=local
-      - LDAP_DOMAIN=TEST.LOCAL
-      - LDAP_PASSWORD=dummy
-      - LDAP_SERVICEUSER_BASEDN=ou=ServiceAccounts,dc=test,dc=local
-      - LDAP_URL=ldaps://fpmock2:8636/
-      - LDAP_USER_BASEDN=ou=NAV,ou=BusinessUnits,dc=test,dc=local
-      - LDAP_USERNAME=dummy
+      - KAFKA_AKSJONSPUNKTHENDELSE_CLIENT_ID=fpsak
+      - KAFKA_AKSJONSPUNKTHENDELSE_GROUP_ID=fpsak
+      - KAFKA_RISIKOKLASSIFISERING_CLIENT_ID=fpsak
+      - KAFKA_RISIKOKLASSIFISERING_GROUP_ID=fpsak
       - LOADBALANCER_FQDN=localhost:8080
       - LOGBACK_CONFIG=/app/vtp-lib/logback-dev.xml
-      - MEDLEM_V2_URL=https://fpmock2:8063/soap/medl2/ws/Medlemskap/v2
-      - MELDEKORTUTBETALINGSGRUNNLAG_V1_URL=https://fpmock2:8063/soap/ail_ws/MeldekortUtbetalingsgrunnlag_v1
       - MQGATEWAY02_CHANNEL=U87_FPSAK_SSL
       - MQGATEWAY02_HOSTNAME=e26apvl121.test.local
       - MQGATEWAY02_NAME=MUXLSC01
       - MQGATEWAY02_PORT=1411
       - MQGATEWAY02_USESSLONJETTY=true
-      - NAV_TRUSTSTORE_PASSWORD=changeit
-      - NAV_TRUSTSTORE_PATH=/app/testcerts/nav_truststore_path
-      - OIDC_OPENAM_AGENTNAME=fpsak-localhost
-      - OIDC_OPENAM_HOSTURL=http://host.docker.internal:8060/rest/isso/oauth2
-      - OIDC_OPENAM_ISSUERURL=https://localhost:8063/rest/isso/oauth2
-      - OIDC_OPENAM_JWKSURL=https://fpmock2:8063/rest/isso/oauth2/connect/jwk_uri
-      - OIDC_OPENAM_PASSWORD=dummy
-      - OIDC_STS_ISSUER=https://fpmock2:8063/sts/issuer
-      - OIDC_STS_ISSUER_URL=https://fpmock2:8063/rest/sts/issuer
-      - OIDC_STS_JWKS=https://fpmock2:8063/rest/sts/jwks
-      - OIDC_STS_JWKS_URL=https://fpmock2:8063/rest/sts/jwks
-      - OPPGAVE_V3_URL=https://fpmock2:8063/soap/nav-gsak-ws/OppgaveV3
-      - ORGANISASJON_V4_URL=https://fpmock2:8063/soap/ereg/ws/OrganisasjonService/v4
-      - PERSON_V3_URL=https://fpmock2:8063/soap/tpsws/ws/Person/v3
       - RAY_AVSTEM_DATA_QUEUENAME=DEV.QUEUE.1
-      - SAK_V1_URL=https://fpmock2:8063/soap/nav-gsak-ws/SakV1
       - SBEH_SAKSBEHANDLING_QUEUENAME=QA.U_SAKOGBEHANDLING.SAKSBEHANDLING
-      - SECURITYTOKENSERVICE_URL=https://fpmock2:8063/soap/SecurityTokenServiceProvider/
-      - SIGRUNRESTBEREGNETSKATT_URL=https://fpmock2:8063
-      - SYSTEMBRUKER_PASSWORD=not_relevant
-      - SYSTEMBRUKER_USERNAME=vtp
-      - KAFKA_AKSJONSPUNKTHENDELSE_TOPIC=fpsak-aksjonspunkthendelse
-      - KAFKA_AKSJONSPUNKTHENDELSE_CLIENT_ID=fpsak
-      - KAFKA_AKSJONSPUNKTHENDELSE_SCHEMA_REGISTRY_URL=https://kafka-test-schema-registry.nais.preprod.local
-      - KAFKA_AKSJONSPUNKTHENDELSE_GROUP_ID=fpsak
-      - KAFKA_RISIKOKLASSIFISERING_TOPIC=fpsak-riskhendelse
-      - KAFKA_RISIKOKLASSIFISERING_CLIENT_ID=fpsak
-      - KAFKA_RISIKOKLASSIFISERING_SCHEMA_REGISTRY_URL=https://kafka-test-schema-registry.nais.preprod.local
-      - KAFKA_RISIKOKLASSIFISERING_GROUP_ID=fpsak
-      - BOOTSTRAP_SERVERS=kafka:19092
-      - FP_TILKJENTYTELSE_V1_TOPIC_URL=privat-foreldrepenger-tilkjentytelse-v1-t4
 
   fpsak-oracle:
-    image: repo.adeo.no:5443/fpsak-oracle:v201905131354
+    image: repo.adeo.no:5443/fpsak-oracle:v201905151626
     shm_size: 1gb
     ports:
       - 1521:1521
@@ -239,7 +179,8 @@ services:
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
       - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
     ports:
-      - "9092:9092"
+      - 9092:9092
+      - 19092:19092
     depends_on:
       - zookeeper
     volumes:

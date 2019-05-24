@@ -22,10 +22,16 @@ module.exports = async function getVersion(imageName) {
   const response = await axios.post('https://repo.adeo.no/service/extdirect',
       request);
   let version;
+
   response.data.result.data.forEach(row => {
-    const parts = row.version.split('_');
-    if (parts[1] && parts[1].startsWith('20') && !version) {
-      version = row.version;
+    if (!version) {
+      const parts = row.version.split('_');
+      if (parts[1] && parts[1].startsWith('20')) {
+        version = row.version;
+      }
+      if (row.version.startsWith('v20')) {
+        version = row.version;
+      }
     }
   });
   return version;

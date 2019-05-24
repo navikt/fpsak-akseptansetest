@@ -15,6 +15,7 @@
     "docker-run-ytelse": "docker run -d --name worker1 fpsak-ytelse",
     "up": "docker-compose up -d --remove-orphans --build && wait-on http://localhost:8080/fpsak/internal/health/isReady",
     "down": "docker-compose down",
+    "update-env": "./_scripts/update-versions.sh",
     "push-local": "./fpmock2/push-local.sh && ./fpsak-for-vtp/push-local.sh",
     "push-remote": "export RELEASE_VERSION=\"v$(date +%Y%m%d%H%M)\" && cd ./fpmock2 && ./push-remote.sh && cd ../fpsak-for-vtp && ./push-remote.sh && cd .. && echo $RELEASE_VERSION"
   },
