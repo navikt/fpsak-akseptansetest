@@ -1,4 +1,6 @@
 const axios = require('axios');
+const SocksProxyAgent = require('socks-proxy-agent');
+
 
 module.exports = async function getVersion(imageName) {
   const request = {
@@ -19,7 +21,11 @@ module.exports = async function getVersion(imageName) {
     'type': 'rpc',
     'tid': 28,
   };
-  const response = await axios.post('https://repo.adeo.no/service/extdirect',
+  const proxyHost = "localhost", proxyPort = 14122;
+  const proxyOptions = `socks5://${proxyHost}:${proxyPort}`;
+  const httpsAgent = new SocksProxyAgent(proxyOptions);
+  const client = axios.create({httpsAgent});
+  const response = await client.post('https://repo.adeo.no/service/extdirect',
       request);
   let version;
 
