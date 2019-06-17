@@ -1,17 +1,35 @@
 #!/bin/sh
 
+SERVERKEYSTORE=serverkeystore.p12
+CERT_PEM=cert.pem
+KEY_PEM=key.pem
+KEYSTORE_FILE=keystore.jks
+KEYSTORE_PASS=devillokeystore1234
+TRUSTSTORE_FILE=truststore.jks
+TRUSTSTORE_PASS=changeit
+
 mkdir -p ~/.modig
 cd ~/.modig
 
-openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365 -nodes -subj '/CN=localhost'
+openssl req -x509 -newkey rsa:2048 -keyout ${KEY_PEM} -out ${CERT_PEM} -days 365 -nodes -subj '/CN=localhost'
 
 # local-host SSL
-openssl pkcs12 -export -name localhost-ssl -in cert.pem -inkey key.pem -out serverkeystore.p12 -password pass:changeit
-keytool -importkeystore -destkeystore keystore.jks -srckeystore serverkeystore.p12 -srcstoretype pkcs12 -alias localhost-ssl -storepass changeit -keypass changeit -srcstorepass changeit
+rm ${KEYSTORE_FILE}
+openssl pkcs12 -export -name localhost-ssl -in ${CERT_PEM} -inkey ${KEY_PEM} -out ${SERVERKEYSTORE} -password pass:${KEYSTORE_PASS}
+keytool -importkeystore -destkeystore ${KEYSTORE_FILE} -srckeystore ${SERVERKEYSTORE} -srcstoretype pkcs12 -alias localhost-ssl -storepass ${KEYSTORE_PASS} -keypass ${KEYSTORE_PASS} -srcstorepass ${KEYSTORE_PASS}
+rm ${SERVERKEYSTORE}
 
 # app-key (jwt uststeder bl.a. i mocken, vi bruker samme noekkel per naa):
-openssl pkcs12 -export -name app-key -in cert.pem -inkey key.pem -out serverkeystore2.p12 -password pass:changeit
-keytool -importkeystore -destkeystore keystore.jks -srckeystore serverkeystore2.p12 -srcstoretype pkcs12 -alias app-key -storepass changeit -keypass changeit -srcstorepass changeit
+openssl pkcs12 -export -name app-key -in ${CERT_PEM} -inkey ${KEY_PEM} -out ${SERVERKEYSTORE} -password pass:${KEYSTORE_PASS}
+keytool -importkeystore -destkeystore ${KEYSTORE_FILE} -srckeystore ${SERVERKEYSTORE} -srcstoretype pkcs12 -alias app-key -storepass ${KEYSTORE_PASS} -keypass ${KEYSTORE_PASS} -srcstorepass ${KEYSTORE_PASS}
+
+# clean up
+rm ${SERVERKEYSTORE}
+rm ${KEY_PEM}
 
 # truststore for SSL:
-keytool -import -trustcacerts -alias localhost-ssl -file cert.pem -keystore truststore.jks -storepass changeit -noprompt
+rm ${TRUSTSTORE_FILE}
+keytool -import -trustcacerts -alias localhost-ssl -file ${CERT_PEM} -keystore ${TRUSTSTORE_FILE} -storepass ${TRUSTSTORE_PASS} -noprompt
+
+# clean up
+rm ${CERT_PEM}
