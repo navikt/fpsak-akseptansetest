@@ -25,4 +25,7 @@ echo OPPDRAG_IMAGE=${OPPDRAG_IMAGE} >> .env
 echo RISK_IMAGE=${RISK_IMAGE} >> .env
 echo TILBAKE_IMAGE=${TILBAKE_IMAGE} >> .env
 echo VTP_IMAGE=repo.adeo.no:5443/fpmock2:${VTP_VERSION} >> .env
+echo SSL_TERM_IMAGE=repo.adeo.no:5443/localhost-ssl-term:v201905071038 >> .env
+echo ORACLE_IMAGE=repo.adeo.no:5443/fpsak-oracle:v201905151626 >> .env
 sed -i "" 's/docker.adeo.no:5000/repo.adeo.no:5443/g' .env
+sed -i "" 's/repo.adeo.no:5443/repo-fra-laptop-tunnel:14129/g' .env

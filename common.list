@@ -50,6 +50,7 @@ MQGATEWAY02_PORT=1411
 MQGATEWAY02_USESSLONJETTY=true
 NAV_TRUSTSTORE_PASSWORD=changeit
 NAV_TRUSTSTORE_PATH=/app/testcerts/nav_truststore_path
+JAVAX_NET_SSL_TRUSTSTORE=/app/testcerts/nav_truststore_path
 OIDC_OPENAM_AGENTNAME=fpsak-localhost
 OIDC_OPENAM_HOSTURL=http://host.docker.internal:8060/rest/isso/oauth2
 OIDC_OPENAM_ISSUERURL=https://localhost:8063/rest/isso/oauth2

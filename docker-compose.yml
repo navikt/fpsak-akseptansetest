@@ -44,7 +44,7 @@ services:
       - ./common.list
 
   vtp-https:
-    image: repo.adeo.no:5443/localhost-ssl-term:v201905071038
+    image: ${SSL_TERM_IMAGE}
     ports:
       - 8063:8063
     environment:
@@ -52,7 +52,7 @@ services:
       - GOSSLTERM_FRONTEND_ADDR=:8063
 
   vtp-ldaps:
-    image: repo.adeo.no:5443/localhost-ssl-term:v201905071038
+    image: ${SSL_TERM_IMAGE}
     ports:
       - 8636:8636
     environment:
@@ -60,7 +60,7 @@ services:
       - GOSSLTERM_FRONTEND_ADDR=:8636
 
   fpsak-https:
-    image: repo.adeo.no:5443/localhost-ssl-term:v201905071038
+    image: ${SSL_TERM_IMAGE}
     ports:
       - 8443:8443
     environment:
@@ -85,23 +85,6 @@ services:
       - SERVER_PORT=8090
       - MOTTAK_QUEUE_QUEUEMANAGER=mq://e26apvl121.test.local:1411/MUXLSC01
       - MOTTAK_QUEUE_QUEUENAME=QA.U87_FPSAK_SSL.MOTTAK_QUEUE
-
-  fpinfo-intern:
-    image: ${INFO_IMAGE}
-    ports:
-      - 8020:8080
-    env_file:
-      - ./common.list
-    volumes:
-      - testcerts:/app/testcerts
-    environment:
-      - APP_NAME=fpinfo-intern
-      - DEFAULTDS_PASSWORD=fpinfointern
-      - DEFAULTDS_USERNAME=fpinfointern
-      - FPINFOINTERNSCHEMA_PASSWORD=fpinfointern_schema
-      - FPINFOINTERNSCHEMA_URL=jdbc:oracle:thin:@fpsak-oracle:1521/XE
-      - FPINFOINTERNSCHEMA_USERNAME=fpinfointern_schema
-      - LOADBALANCER_FQDN=localhost:8020
 
   fplos:
     image: ${LOS_IMAGE}
@@ -154,39 +137,13 @@ services:
       - SBEH_SAKSBEHANDLING_QUEUENAME=QA.U_SAKOGBEHANDLING.SAKSBEHANDLING
 
   fpsak-oracle:
-    image: repo.adeo.no:5443/fpsak-oracle:v201905151626
+    image: ${ORACLE_IMAGE}
     shm_size: 1gb
     ports:
       - 1521:1521
     volumes:
       - oradata:/u01/app/oracle/oradata
 
-  kafka:
-    image: confluentinc/cp-kafka:5.1.0
-    networks:
-      default:
-        aliases:
-          - kafka
-    environment:
-      - KAFKA_ADVERTISED_LISTENERS=LISTENER_DOCKER_INTERNAL://kafka:19092,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092
-      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
-      - KAFKA_INTER_BROKER_LISTENER_NAME= LISTENER_DOCKER_INTERNAL
-      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
-    ports:
-      - "9092:9092"
-    depends_on:
-      - zookeeper
-    volumes:
-      - ./_scripts:/kafka_scripts
-    command: ["kafka_scripts/wait_for_zookeeper.sh", "zookeeper:2181", "/etc/confluent/docker/run"]
-
-  zookeeper:
-    image: confluentinc/cp-zookeeper:5.1.0
-    environment:
-      - ZOOKEEPER_CLIENT_PORT=2181
-    ports:
-      - "2181:2181"
 volumes:
   testcerts:
   oradata:
