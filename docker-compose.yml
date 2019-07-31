@@ -30,16 +30,12 @@ services:
       - 8060:8060 # HTTP
       - 8389:8389 # LDAP
     environment:
-      - AUTHORIZE_BASE_URL=http://host.docker.internal:8060
-      - AUTOTEST_FPSAK_BASE_URL=http://fpsak:8080
-      - AUTOTEST_OAUTH2_ISSUER=https://localhost:8063/rest/isso/oauth2
-      - AUTOTEST_VTP_BASE_URL=http://fpmock2:8060
       - CUSTOM_KEYSTORE_PASSWORD=changeit
       - CUSTOM_KEYSTORE_PATH=/app/testcerts/vtpkeystore.jks
       - ENABLE_CUSTOM_TRUSTSTORE=true
       - LDAP_PROVIDER_URL=ldaps://fpmock2:8636
     volumes:
-      - testcerts:/app/testcerts
+      - "~/.modig/:/root/.modig"
     env_file:
       - ./common.list
 
@@ -74,7 +70,7 @@ services:
     env_file:
       - ./common.list
     volumes:
-      - testcerts:/app/testcerts
+      - "~/.modig/:/root/.modig"
     environment:
       - APP_NAME=fpfordel
       - DEFAULTDS_PASSWORD=fpfordel
@@ -86,21 +82,23 @@ services:
       - MOTTAK_QUEUE_QUEUEMANAGER=mq://e26apvl121.test.local:1411/MUXLSC01
       - MOTTAK_QUEUE_QUEUENAME=QA.U87_FPSAK_SSL.MOTTAK_QUEUE
 
-  fplos:
-    image: ${LOS_IMAGE}
-    ports:
-      - 8070:8080
-    env_file:
-      - ./common.list
-    volumes:
-      - testcerts:/app/testcerts
-    environment:
-      - APP_NAME=fplos
-      - DEFAULTDS_PASSWORD=fplos
-      - DEFAULTDS_USERNAME=fplos
-      - KAFKA_AKSJONSPUNKTHENDELSE_CLIENT_ID=fplos
-      - KAFKA_AKSJONSPUNKTHENDELSE_GROUP_ID=fplos
-      - LOADBALANCER_FQDN=localhost:8070
+#  fplos:
+#    image: ${LOS_IMAGE}
+#    ports:
+#      - 8070:8080
+#    env_file:
+#      - ./common.list
+#    volumes:
+#      - testcerts:/app/testcerts
+#    environment:
+#      - APP_NAME=fplos
+#      - DEFAULTDS_PASSWORD=fplos
+#      - DEFAULTDS_USERNAME=fplos
+#      - KAFKA_AKSJONSPUNKTHENDELSE_CLIENT_ID=fplos
+#      - KAFKA_AKSJONSPUNKTHENDELSE_GROUP_ID=fplos
+#      - LOADBALANCER_FQDN=localhost:8070
+
+
   fpsak:
     image: ${FPSAK_IMAGE}
     restart: on-failure
@@ -112,7 +110,7 @@ services:
     ports:
       - 8080:8080
     volumes:
-      - testcerts:/app/testcerts
+      - "~/.modig/:/root/.modig"
     environment:
       - APP_NAME=fpsak
       - DEFAULTDS_PASSWORD=fpsak
@@ -138,12 +136,7 @@ services:
 
   fpsak-oracle:
     image: ${ORACLE_IMAGE}
-    shm_size: 1gb
     ports:
       - 1521:1521
-    volumes:
-      - oradata:/u01/app/oracle/oradata
 
-volumes:
-  testcerts:
-  oradata:
+
