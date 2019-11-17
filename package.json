@@ -20,7 +20,7 @@
     "push-remote": "export RELEASE_VERSION=\"v$(date +%Y%m%d%H%M)\" && cd ./fpmock2 && ./push-remote.sh && cd ../fpsak-for-vtp && ./push-remote.sh && cd .. && echo $RELEASE_VERSION"
   },
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.18.1",
     "cypress": "^3.1.5",
     "deepmerge": "^3.1.0",
     "fs-extra": "^7.0.1",
